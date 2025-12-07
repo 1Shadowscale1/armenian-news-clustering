@@ -15,9 +15,12 @@
 
 ```bash
 # Установка из исходного кода
-git clone https://github.com/yourusername/armenian-news-clustering.git
+git clone https://github.com/1Shadowscale1/armenian-news-clustering.git
 cd armenian-news-clustering
 pip install -e .
 
 # Или установка зависимостей
 pip install -r requirements.txt
+
+#Импорт
+from ArmenianNews import

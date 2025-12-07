@@ -8,13 +8,13 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="armenian-news-clustering",
-    version="0.1.0",
-    author="Your Name",
+    version="0.1.1",
+    author="Ilya Danilov",
     author_email="your.email@example.com",
     description="Package for clustering Armenian news articles",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/armenian-news-clustering",
+    url="https://github.com/1Shadowscale1/armenian-news-clustering.git",
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
