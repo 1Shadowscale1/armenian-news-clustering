@@ -1,0 +1,37 @@
+data:
+  sample_size: 100
+  date_column: "date_time"
+  text_columns: ["title", "text"]
+
+preprocessing:
+  max_text_length: 1000
+  remove_empty_dates: true
+
+embedding:
+  model_name: "Metric-AI/armenian-text-embeddings-1"
+  batch_size: 16
+  max_length: 512
+
+ner:
+  model_name: "daviddallakyan2005/armenian-ner"
+  confidence_threshold: 0.7
+  batch_size: 16
+
+triplet_generation:
+  n_triplets: 800
+  similarity_threshold: 0.6
+  strategies: ["semantic", "length"]
+
+clustering:
+  min_cluster_size: 3
+  min_samples: 2
+  similarity_weights:
+    semantic: 0.3
+    entity: 0.3
+    time: 0.2
+    length: 0.2
+
+output:
+  save_embeddings: false
+  save_clusters: true
+  visualization: true
