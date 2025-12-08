@@ -10,7 +10,7 @@ from datetime import datetime
 class NewsClustering:
     """Кластеризация новостных статей"""
 
-    def __init__(self, min_cluster_size: int = 3, min_samples: int = 2):
+    def __init__(self, min_cluster_size: int = 2, min_samples: int = 2):
         self.min_cluster_size = min_cluster_size
         self.min_samples = min_samples
 

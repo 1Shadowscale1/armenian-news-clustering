@@ -144,6 +144,43 @@ class TripletGenerator:
         random.shuffle(all_triplets)
         return all_triplets[:self.n_triplets]
 
+    def analyze_triplets_quality(self: List[str], texts, dates=None):
+        """
+        Анализ качества созданных триплетов
+
+        Args:
+            self: список триплетов
+            texts: список текстов
+            dates: список дат (опционально)
+        """
+        print(f"Total triplets: {len(self)}")
+
+        # Анализ по типам
+        type_counts = {}
+        for triplet in self:
+            t_type = triplet.get('type', 'unknown')
+            type_counts[t_type] = type_counts.get(t_type, 0) + 1
+
+        print("Triplets by type:")
+        for t_type, count in type_counts.items():
+            print(f"  {t_type}: {count}")
+
+        # Анализ длин текстов
+        if 'length_anchor' in self[0]:
+            avg_lengths = {
+                'anchor': np.mean([t['length_anchor'] for t in self]),
+                'positive': np.mean([t['length_positive'] for t in self]),
+                'negative': np.mean([t['length_negative'] for t in self])
+            }
+            print(f"Average lengths: {avg_lengths}")
+
+        # Анализ схожести для семантических триплетов
+        if 'similarity_anchor_positive' in self[0]:
+            avg_sim_pos = np.mean([t['similarity_anchor_positive'] for t in self])
+            avg_sim_neg = np.mean([t['similarity_anchor_negative'] for t in self])
+            print(f"Average similarity - anchor-positive: {avg_sim_pos:.3f}")
+            print(f"Average similarity - anchor-negative: {avg_sim_neg:.3f}")
+
 
 def create_all_triplets(texts: List[str], n_triplets: int = 800) -> List[Dict]:
     """
