@@ -12,6 +12,7 @@ from .utils.visualization import NewsVisualization
 from .data_loader import ArmenianNewsDataLoader
 from .preprocessing import ArmenianTextPreprocessor
 from .triplet_generation import create_all_triplets
+from .basic import Pipeline
 
 __version__ = "0.1.1"
 __author__ = "Ilya Danilov"
@@ -38,6 +39,9 @@ __all__ = [
 
     # Визуализация
     "NewsVisualization",
+
+    # Пайплайн алгоритма
+    "Pipeline",
 
     # Версия
     "__version__"
