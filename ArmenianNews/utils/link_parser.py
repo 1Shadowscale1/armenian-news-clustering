@@ -167,9 +167,6 @@ class LinkParser:
             LinkParser.save_results_csv(results, out_csv)
 
         print(f'Done. Parsed {len(results)} articles')
-        if out_json:
-            print(f'JSON saved to: {out_json}')
-        if out_csv:
-            print(f'CSV saved to: {out_csv}')
+        print(f'CSV saved to: {out_csv}')
 
         return results

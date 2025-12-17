@@ -56,7 +56,7 @@ class TextPreprocessor:
         df[date_column] = df[date_column].apply(self.convert_armenian_date)
 
         # Удаление строк с пустыми датами
-        df = df.dropna(subset=[date_column]).reset_index(drop=True)
+        #df = df.dropna(subset=[date_column]).reset_index(drop=True)
 
         # Создание объединенного текста
         df['full_text'] = df.apply(
