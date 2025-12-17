@@ -5,12 +5,12 @@ Armenian News Clustering Package
 from .clustering.analysis import ClusterAnalyzer
 from .clustering.clustering import NewsClustering
 from .clustering.similarity import SimilarityCalculator
-from .models.dataset import ArmenianNewsDataset
-from .models.embedding_model import ArmenianEmbeddingModel
-from .models.ner_model import ArmenianNERModel
+from .models.dataset import NewsDataset
+from .models.embedding_model import EmbeddingModel
+from .models.ner_model import NERModel
 from .utils.visualization import NewsVisualization
 from .data_loader import ArmenianNewsDataLoader
-from .preprocessing import ArmenianTextPreprocessor
+from .preprocessing import TextPreprocessor
 from .triplet_generation import create_all_triplets
 from .basic import Pipeline
 
@@ -23,14 +23,14 @@ __all__ = [
     "ArmenianNewsDataLoader",
 
     # Препроцессинг текста
-    "ArmenianTextPreprocessor",
+    "TextPreprocessor",
 
     # Генерация триплетов
     "create_all_triplets",
 
     # Модели
-    "ArmenianEmbeddingModel",
-    "ArmenianNERModel",
+    "EmbeddingModel",
+    "NERModel",
 
     # Кластеризация
     "SimilarityCalculator",

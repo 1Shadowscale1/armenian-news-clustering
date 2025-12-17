@@ -4,7 +4,7 @@ from transformers import AutoTokenizer
 from typing import Dict, List
 
 
-class ArmenianNewsDataset(Dataset):
+class NewsDataset(Dataset):
     """Датасет для новостей на армянском языке"""
 
     def __init__(self, texts: List[str], dates: List, titles: List[str]):

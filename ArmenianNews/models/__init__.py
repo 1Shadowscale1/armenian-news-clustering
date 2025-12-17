@@ -2,8 +2,8 @@
 Models module for Armenian News
 """
 
-from .dataset import ArmenianNewsDataset
-from .embedding_model import ArmenianEmbeddingModel
-from .ner_model import ArmenianNERModel
+from .dataset import NewsDataset
+from .embedding_model import EmbeddingModel
+from .ner_model import NERModel
 
-__all__ = ['ArmenianNewsDataset', 'ArmenianEmbeddingModel', 'ArmenianNERModel']
+__all__ = ['NewsDataset', 'EmbeddingModel', 'NERModel']

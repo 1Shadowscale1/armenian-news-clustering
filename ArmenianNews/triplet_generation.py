@@ -1,14 +1,11 @@
 import numpy as np
 import random
-from typing import List, Dict, Optional
-from collections import defaultdict
+from typing import List, Dict
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
 class TripletGenerator:
-    """Генерация триплетов для обучения моделей"""
-
     def __init__(self, n_triplets: int = 1000, similarity_threshold: float = 0.6):
         self.n_triplets = n_triplets
         self.similarity_threshold = similarity_threshold
@@ -77,9 +74,6 @@ class TripletGenerator:
         return triplets
 
     def create_length_based_triplets(self, texts: List[str], length_ratio: float = 0.7) -> List[Dict]:
-        """
-        Создание триплетов на основе длины текста
-        """
         triplets = []
 
         # Вычисляем длины текстов
@@ -126,9 +120,6 @@ class TripletGenerator:
         return triplets
 
     def create_hybrid_triplets(self, texts: List[str], strategies: List[str] = None) -> List[Dict]:
-        """
-        Создание триплетов с использованием нескольких стратегий
-        """
         if strategies is None:
             strategies = ['semantic', 'length']
 
@@ -146,8 +137,6 @@ class TripletGenerator:
 
     def analyze_triplets_quality(self: List[str], texts, dates=None):
         """
-        Анализ качества созданных триплетов
-
         Args:
             self: список триплетов
             texts: список текстов
@@ -183,8 +172,5 @@ class TripletGenerator:
 
 
 def create_all_triplets(texts: List[str], n_triplets: int = 800) -> List[Dict]:
-    """
-    Создание триплетов всеми методами
-    """
     generator = TripletGenerator(n_triplets=n_triplets)
     return generator.create_hybrid_triplets(texts, strategies=['semantic', 'length'])

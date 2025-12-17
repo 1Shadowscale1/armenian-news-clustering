@@ -11,10 +11,10 @@ from tqdm import tqdm
 
 from ArmenianNews import (
     ArmenianNewsDataLoader,
-    ArmenianTextPreprocessor
+    TextPreprocessor
 )
 from .models.dataset import OptimizedTripletDataset
-from .models.embedding_model import ArmenianEmbeddingModel, TripletLoss
+from .models.embedding_model import EmbeddingModel, TripletLoss
 
 warnings.filterwarnings('ignore')
 
@@ -36,7 +36,7 @@ class FineTuningManager:
 
         # Инициализация модели и токенизатора
         print(f"Initializing fine-tuning on {self.device}...")
-        self.model = ArmenianEmbeddingModel(model_name, device)
+        self.model = EmbeddingModel(model_name, device)
         self.tokenizer = self.model.tokenizer
 
         # Настройки для экономии памяти
@@ -51,23 +51,20 @@ class FineTuningManager:
         Args:
             file_paths: Список путей к CSV файлам
             sample_size: Количество статей из каждого источника
-
-        Returns:
-            Словарь с подготовленными данными
         """
-        print("Loading data...")
+        print("Loading data")
 
         # Загрузка данных
-        data_loader = ArmenianNewsDataLoader.load_data_optimized(file_paths, sample_size)
+        data_loader = ArmenianNewsDataLoader.load_data(file_paths, sample_size)
         df = data_loader
 
         # Преобразование дат
-        print("Converting dates...")
-        df['date_time'] = df['date_time'].apply(ArmenianTextPreprocessor.convert_armenian_date)
+        print("Converting dates")
+        df['date_time'] = df['date_time'].apply(TextPreprocessor.convert_armenian_date)
         df = df.dropna(subset=['date_time']).reset_index(drop=True)
 
         # Подготовка текстов
-        print("Preparing texts...")
+        print("Preparing texts")
         input_texts = []
         for idx, row in df.iterrows():
             text = f"{row['title']}. {row['text']}"
@@ -76,7 +73,7 @@ class FineTuningManager:
                 text = text[:1000]
             input_texts.append(text)
 
-        print(f"✅ Processing {len(input_texts)} articles...")
+        print(f"Processing {len(input_texts)} articles...")
 
         return {
             'dataframe': df,
@@ -94,9 +91,6 @@ class FineTuningManager:
             input_texts: Список текстов
             dates: Список дат
             n_triplets: Количество триплетов для создания
-
-        Returns:
-            Список триплетов
         """
         print("Creating triplets...")
 
@@ -209,9 +203,6 @@ class FineTuningManager:
             batch_size: Размер батча
             learning_rate: Скорость обучения
             n_triplets: Количество триплетов
-
-        Returns:
-            Словарь с результатами обучения
         """
         print("Starting fine-tuning process...")
 
@@ -262,13 +253,13 @@ class FineTuningManager:
         }
 
         for epoch in range(num_epochs):
-            print(f"\n📈 Epoch {epoch + 1}/{num_epochs}")
+            print(f"\nEpoch {epoch + 1}/{num_epochs}")
 
             avg_loss = self.train_epoch(dataloader, optimizer, accumulation_steps=4)
             training_history['epochs'].append(epoch + 1)
             training_history['losses'].append(avg_loss)
 
-            print(f"📉 Average loss: {avg_loss:.4f}")
+            print(f"Average loss: {avg_loss:.4f}")
 
             # Очистка памяти
             if self.device == 'cuda':
@@ -282,7 +273,7 @@ class FineTuningManager:
         self.model.model.save_pretrained(output_dir)
         self.tokenizer.save_pretrained(output_dir)
 
-        print("Fine-tuning completed successfully!")
+        print("Fine-tuning completed successfully")
 
         return training_history
 
@@ -298,21 +289,21 @@ class FineTuningManager:
         Returns:
             Словарь с метриками оценки
         """
-        print("Evaluating fine-tuning results...")
+        print("Evaluating fine-tuning results")
 
         # Загрузка тестовых данных
         test_data = self.prepare_training_data(test_file_paths, sample_size=50)
         test_texts = test_data['texts']
 
         # Получение эмбеддингов до и после fine-tuning
-        print("Getting embeddings from fine-tuned model...")
+        print("Getting embeddings from fine-tuned model")
         ft_embeddings = self.model.get_embeddings_batch(test_texts, batch_size=8)
 
         # Если указана исходная модель, сравниваем с ней
         comparison_results = {}
         if original_model_name:
             print(f"Comparing with original model: {original_model_name}")
-            original_model = ArmenianEmbeddingModel(original_model_name, self.device)
+            original_model = EmbeddingModel(original_model_name, self.device)
             original_embeddings = original_model.get_embeddings_batch(test_texts, batch_size=8)
 
             # Вычисление косинусной схожести между эмбеддингами
@@ -352,7 +343,7 @@ def fine_tune_armenian_model(file_paths: List[str], output_dir: str = "./fine_tu
                              num_epochs: int = 3, batch_size: int = 4,
                              learning_rate: float = 1e-5, n_triplets: int = 400) -> Dict:
     """
-    Быстрый запуск fine-tuning модели на армянских новостях
+    Быстрый запуск fine-tuning модели
 
     Args:
         file_paths: Список путей к CSV файлам с данными
@@ -362,9 +353,6 @@ def fine_tune_armenian_model(file_paths: List[str], output_dir: str = "./fine_tu
         batch_size: Размер батча
         learning_rate: Скорость обучения
         n_triplets: Количество триплетов для создания
-
-    Returns:
-        Словарь с результатами обучения
     """
     # Инициализация менеджера
     ft_manager = FineTuningManager(model_name=model_name)
@@ -383,7 +371,7 @@ def fine_tune_armenian_model(file_paths: List[str], output_dir: str = "./fine_tu
 
 
 # Основная функция для запуска из командной строки
-def main():
+def finetune():
     """
     Основной процесс fine-tuning
     """
@@ -408,13 +396,11 @@ def main():
     args = parser.parse_args()
 
     # Запуск fine-tuning
-    print("🚀 Starting Armenian News Model Fine-Tuning")
-    print("=" * 50)
+    print("Starting Armenian News Model Fine-Tuning")
     print(f"Model: {args.model_name}")
     print(f"Data: {len(args.data_paths)} files")
     print(f"Output: {args.output_dir}")
     print(f"Epochs: {args.epochs}, Batch size: {args.batch_size}")
-    print("=" * 50)
 
     try:
         results = fine_tune_armenian_model(
@@ -437,7 +423,3 @@ def main():
         print(f"Error during fine-tuning: {e}")
         import traceback
         traceback.print_exc()
-
-
-if __name__ == "__main__":
-    main()

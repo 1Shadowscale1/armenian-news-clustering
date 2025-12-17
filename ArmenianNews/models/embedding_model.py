@@ -7,9 +7,7 @@ from typing import Optional, Tuple
 import gc
 
 
-class ArmenianEmbeddingModel:
-    """Модель для получения эмбеддингов на армянском языке"""
-
+class EmbeddingModel:
     def __init__(self, model_name: str = "Metric-AI/armenian-text-embeddings-1", device: str = None):
         self.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
         self.model_name = model_name
@@ -28,19 +26,16 @@ class ArmenianEmbeddingModel:
 
     @staticmethod
     def mean_pooling(model_output: Tuple[Tensor, ...], attention_mask: Tensor) -> Tensor:
-        """Mean pooling для получения эмбеддингов"""
         token_embeddings = model_output.last_hidden_state
         input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
         return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
 
     @staticmethod
     def average_pool(last_hidden_states: Tensor, attention_mask: Tensor) -> Tensor:
-        """Average pooling для эмбеддингов"""
         last_hidden = last_hidden_states.masked_fill(~attention_mask[..., None].bool(), 0.0)
         return last_hidden.sum(dim=1) / attention_mask.sum(dim=1)[..., None]
 
     def get_embeddings_batch(self, texts: list, batch_size: int = 16) -> Tensor:
-        """Пакетное получение эмбеддингов"""
         all_embeddings = []
 
         for i in range(0, len(texts), batch_size):
@@ -66,13 +61,10 @@ class ArmenianEmbeddingModel:
         return torch.cat(all_embeddings, dim=0)
 
     def get_embeddings_single(self, text: str) -> Tensor:
-        """Получение эмбеддинга для одного текста"""
         return self.get_embeddings_batch([text])[0]
 
 
 class TripletLoss(nn.Module):
-    """Loss функция для триплетов"""
-
     def __init__(self, margin: float = 1.0):
         super(TripletLoss, self).__init__()
         self.margin = margin

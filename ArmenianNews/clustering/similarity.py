@@ -7,8 +7,6 @@ import re
 
 
 class SimilarityCalculator:
-    """Калькулятор схожести для новостных статей"""
-
     def __init__(self, device: str = None):
         self.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -29,8 +27,8 @@ class SimilarityCalculator:
         return intersection / union_total if union_total > 0 else 0
 
     @staticmethod
-    def improved_temporal_distance(date1, date2, max_days: float = 0.4) -> float:
-        """Более строгая временная метрика"""
+    def temporal_distance(date1, date2, max_days: float = 0.4) -> float:
+        """Строгая временная метрика"""
         delta = abs((date1 - date2).days)
         if delta > max_days:
             return 1.0
@@ -56,10 +54,9 @@ class SimilarityCalculator:
                                   dates: List, texts: List[str],
                                   alpha: float = 0.3, beta: float = 0.3,
                                   gamma: float = 0.2, delta: float = 0.2) -> Tuple[np.ndarray, ...]:
-        """Оптимизированное вычисление матрицы схожести"""
+        """Вычисление матрицы схожести"""
         n_articles = len(embeddings)
 
-        # Перенос эмбеддингов на GPU
         embeddings_gpu = embeddings.to(self.device)
 
         # Вычисление косинусной схожести
@@ -80,7 +77,7 @@ class SimilarityCalculator:
 
         for i in range(n_articles):
             for j in range(i + 1, n_articles):
-                time_penalty = self.improved_temporal_distance(dates[i], dates[j])
+                time_penalty = self.temporal_distance(dates[i], dates[j])
                 time_matrix[i, j] = time_penalty
                 time_matrix[j, i] = time_penalty
 

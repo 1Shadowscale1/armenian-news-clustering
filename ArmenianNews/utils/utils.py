@@ -1,9 +1,8 @@
 import re
-from typing import Set, List
+from typing import Set
 
 
 def normalize_armenian_entity(entity_text: str) -> str:
-    """Нормализация армянской сущности"""
     if not entity_text or not isinstance(entity_text, str):
         return ""
 
@@ -59,7 +58,6 @@ def enhanced_armenian_stemmer(word: str) -> str:
 
 
 def is_valid_armenian_entity(entity_text: str) -> bool:
-    """Проверка, является ли текст валидной армянской сущностью"""
     if not entity_text or not isinstance(entity_text, str):
         return False
 

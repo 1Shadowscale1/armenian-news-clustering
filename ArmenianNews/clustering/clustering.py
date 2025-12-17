@@ -1,22 +1,14 @@
 import numpy as np
 import hdbscan
-from typing import Dict, List, Any
-from sklearn.manifold import TSNE
-from sklearn.decomposition import PCA
-import pandas as pd
-from datetime import datetime
-
+from typing import Dict, List
 
 class NewsClustering:
-    """Кластеризация новостных статей"""
-
     def __init__(self, min_cluster_size: int = 2, min_samples: int = 2):
         self.min_cluster_size = min_cluster_size
         self.min_samples = min_samples
 
     @staticmethod
     def evaluate_clustering_quality(labels: np.ndarray, similarity_matrix: np.ndarray) -> float:
-        """Оценка качества кластеризации"""
         unique_labels = set(labels)
         if -1 in unique_labels:
             unique_labels.remove(-1)
@@ -50,8 +42,6 @@ class NewsClustering:
         return intra_cluster_similarity
 
     def optimized_clustering(self, similarity_matrix: np.ndarray) -> np.ndarray:
-        """Оптимизированная кластеризация с подбором параметров"""
-
         distance_matrix = 1 - similarity_matrix
         distance_matrix = distance_matrix.astype(np.float64)
 
@@ -92,8 +82,6 @@ class NewsClustering:
 
     def split_heterogeneous_cluster(self, cluster_info: Dict, similarity_matrix: np.ndarray,
                                     similarity_threshold: float = 0.5) -> List[Dict]:
-        """Разбивает неоднородный кластер на подгруппы"""
-
         if len(cluster_info['items']) <= 2:
             return [cluster_info]
 

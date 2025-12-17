@@ -5,7 +5,7 @@ from typing import List, Set, Dict
 import warnings
 
 
-class ArmenianNERModel:
+class NERModel:
     """Модель для распознавания именованных сущностей на армянском языке"""
 
     def __init__(self, model_name: str = "daviddallakyan2005/armenian-ner", device: str = None):

@@ -14,11 +14,10 @@ class ClusterAnalyzer:
     def analyze_combined_clusters(self, df: pd.DataFrame, cluster_labels: np.ndarray,
                                   input_texts: List[str], dates: List,
                                   ner_model: Any) -> Dict:
-        """Анализ кластеров с комбинированной метрикой"""
         clusters = {}
 
         # Предварительное вычисление сущностей
-        print("🔍 Precomputing named entities for all texts...")
+        print("Precomputing named entities for all texts...")
         all_entities_batch = ner_model.get_named_entities_batch(input_texts)
 
         for i, label in enumerate(cluster_labels):

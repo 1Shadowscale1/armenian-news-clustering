@@ -3,19 +3,15 @@ import numpy as np
 import pandas as pd
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
-from typing import List, Dict
+from typing import Dict
 
 
 class NewsVisualization:
-    """Визуализация результатов кластеризации новостей"""
-
     def __init__(self):
         pass
 
     def create_cluster_visualization(self, embeddings: np.ndarray, cluster_labels: np.ndarray,
                                      df: pd.DataFrame, figsize: tuple = (20, 8)) -> plt.Figure:
-        """Создание визуализации кластеров"""
-
         # Используем исходные эмбеддинги для t-SNE
         tsne_original = TSNE(n_components=2, random_state=42,
                              perplexity=min(30, len(embeddings) - 1))
@@ -123,7 +119,6 @@ class NewsVisualization:
         return fig
 
     def plot_cluster_size_distribution(self, clusters: Dict, figsize: tuple = (10, 6)) -> plt.Figure:
-        """Визуализация распределения размеров кластеров"""
         cluster_sizes = []
         cluster_ids = []
 

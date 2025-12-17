@@ -12,35 +12,37 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from ArmenianNews import (
     ArmenianNewsDataLoader,
-    ArmenianTextPreprocessor,
-    ArmenianEmbeddingModel,
-    ArmenianNERModel
+    TextPreprocessor,
+    EmbeddingModel,
+    NERModel
 )
 from ArmenianNews.clustering.similarity import SimilarityCalculator
 from ArmenianNews.clustering.clustering import NewsClustering
 from ArmenianNews.clustering.analysis import ClusterAnalyzer
 from ArmenianNews.utils.visualization import NewsVisualization
+from ArmenianNews.utils.link_parser import LinkParser
 
 class Pipeline:
-    def pipeline(self):
-        # Конфигурация
-        NUMBER_OF_ARTICLES_FROM_ONE_SOURCE = 100
-        file_paths = [
-            '/kaggle/input/armenian-political-news/armeniatoday.csv',
-            '/kaggle/input/armenian-political-news/armenpress.csv',
-            '/kaggle/input/armenian-political-news/hetq.csv',
-            '/kaggle/input/armenian-political-news/sputnik.csv',
-            '/kaggle/input/armenian-political-news/tert.csv'
-        ]
+    @staticmethod
+    def pipeline(input_link_txt='urls.txt',
+                 output_articles_csv='/kaggle/working/articles.csv',
+                 output_clusters_json='/kaggle/working/cluster_news_mapping.json'):
+
+        LinkParser.parse_articles(
+            input_file= input_link_txt,
+            out_csv= output_articles_csv
+        )
+
+        file_paths = [output_articles_csv]
 
         # 1. Загрузка данных
         print("Loading data...")
-        data_loader = ArmenianNewsDataLoader(sample_size=NUMBER_OF_ARTICLES_FROM_ONE_SOURCE)
-        df = data_loader.load_data_optimized(file_paths)
+        data_loader = ArmenianNewsDataLoader()
+        df = data_loader.load_data(file_paths)
 
         # 2. Препроцессинг
         print("Preprocessing data...")
-        preprocessor = ArmenianTextPreprocessor()
+        preprocessor = TextPreprocessor()
         df = preprocessor.preprocess_dataframe(df, date_column='date_time')
 
         # Получаем подготовленные тексты
@@ -50,7 +52,7 @@ class Pipeline:
 
         # 3. Получение эмбеддингов
         print("Computing embeddings...")
-        embedding_model = ArmenianEmbeddingModel()
+        embedding_model = EmbeddingModel()
         embeddings = embedding_model.get_embeddings_batch(input_texts)
         dates = df['date_time'].tolist()
 
@@ -58,7 +60,7 @@ class Pipeline:
 
         # 4. Извлечение именованных сущностей
         print("Extracting named entities...")
-        ner_model = ArmenianNERModel()
+        ner_model = NERModel()
         all_entities = ner_model.get_named_entities_batch(input_texts)
 
         print("Named entities extracted successfully")
@@ -121,7 +123,7 @@ class Pipeline:
         noise_count = np.sum(updated_cluster_labels == -1)
         valid_clusters = len([c for c in clusters.keys() if c != -1 and len(clusters[c]['items']) >= 2])
 
-        print(f"\n📊 IMPROVED CLUSTERING SUMMARY:")
+        print(f"\nCLUSTERING SUMMARY:")
         print(f"   Total articles: {len(df)}")
         print(f"   Valid clusters: {valid_clusters}")
         print(f"   Noise articles: {noise_count}")
@@ -129,8 +131,8 @@ class Pipeline:
 
 
         # 13. Создание отображения кластеров на новости
-        print("\n📊 Creating cluster-news mapping...")
+        print("\nCreating cluster-news mapping")
         cluster_news_mapping = analyzer.create_cluster_news_mapping(
             clusters=clusters,
-            output_file='/kaggle/working/cluster_news_mapping.json'
+            output_file=output_clusters_json
         )

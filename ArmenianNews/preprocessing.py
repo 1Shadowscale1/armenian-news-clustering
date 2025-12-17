@@ -1,11 +1,7 @@
 import pandas as pd
-import re
-from typing import Optional, Union
-from datetime import datetime
+from typing import Optional
 
-class ArmenianTextPreprocessor:
-    """Препроцессинг текстов на армянском языке"""
-
+class TextPreprocessor:
     def __init__(self):
         # Словарь для перевода армянских месяцев
         self.armenian_months = {
@@ -20,7 +16,6 @@ class ArmenianTextPreprocessor:
         }
 
     def convert_armenian_date(self, date_string: str) -> Optional[pd.Timestamp]:
-        """Конвертирует армянскую дату в стандартный datetime формат"""
         if pd.isna(date_string):
             return pd.NaT
 
@@ -53,11 +48,10 @@ class ArmenianTextPreprocessor:
             return pd.to_datetime(date_clean, errors='coerce')
 
         except Exception as e:
-            print(f"⚠️ Could not parse date: '{date_string}' - {e}")
+            print(f"Could not parse date: '{date_string}' - {e}")
             return pd.NaT
 
     def preprocess_dataframe(self, df: pd.DataFrame, date_column: str = 'date_time') -> pd.DataFrame:
-        """Препроцессинг всего DataFrame"""
         # Конвертация дат
         df[date_column] = df[date_column].apply(self.convert_armenian_date)
 
