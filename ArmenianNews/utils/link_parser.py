@@ -127,7 +127,7 @@ class LinkParser:
             json.dump(results, f, ensure_ascii=False, indent=2)
 
     def save_results_csv(results: List[Dict], outpath: str):
-        keys = ['url', 'title', 'text', 'date']
+        keys = ['url', 'title', 'text', 'date_time']
         with open(outpath, 'w', encoding='utf-8', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=keys)
             writer.writeheader()

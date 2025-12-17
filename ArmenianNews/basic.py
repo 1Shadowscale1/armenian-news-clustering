@@ -24,9 +24,9 @@ from ArmenianNews.utils.link_parser import LinkParser
 
 class Pipeline:
     @staticmethod
-    def pipeline(input_link_txt='urls.txt',
-                 output_articles_csv='/kaggle/working/articles.csv',
-                 output_clusters_json='/kaggle/working/cluster_news_mapping.json'):
+    def pipeline(input_link_txt='input/urls.txt',
+                 output_articles_csv='working/articles.csv',
+                 output_clusters_json='working/cluster_news_mapping.json'):
 
         LinkParser.parse_articles(
             input_file= input_link_txt,
