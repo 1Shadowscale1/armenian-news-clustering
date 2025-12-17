@@ -44,7 +44,7 @@ class Pipeline:
         df = preprocessor.preprocess_dataframe(df, date_column='date_time')
 
         # Получаем подготовленные тексты
-        input_texts = df['full_text'].tolist()
+        input_texts = df['text'].tolist()
         n_articles = len(input_texts)
         print(f"Processing {n_articles} articles...")
 
