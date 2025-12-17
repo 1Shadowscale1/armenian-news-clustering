@@ -8,17 +8,15 @@ class ArmenianNewsDataLoader:
     def __init__(self):
         pass
 
-    def load_data(self, file_paths: List[str]) -> pd.DataFrame:
+    def load_data(self, file_path: str) -> pd.DataFrame:
         dfs = []
 
-        for file_path in file_paths:
-            try:
-                df_temp = pd.read_csv(file_path).iloc[:, [1, 2, 3]]
-                dfs.append(df_temp)
-                print(f"Loaded {len(df_temp)} rows from {file_path}")
-            except Exception as e:
-                warnings.warn(f"Error loading {file_path}: {e}")
-                continue
+        try:
+            df_temp = pd.read_csv(file_path).iloc[:, [1, 2, 3]]
+            dfs.append(df_temp)
+            print(f"Loaded {len(df_temp)} rows from {file_path}")
+        except Exception as e:
+            warnings.warn(f"Error loading {file_path}: {e}")
 
         if not dfs:
             raise ValueError("No data loaded from any file")
