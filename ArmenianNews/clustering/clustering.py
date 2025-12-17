@@ -45,40 +45,21 @@ class NewsClustering:
         distance_matrix = 1 - similarity_matrix
         distance_matrix = distance_matrix.astype(np.float64)
 
-        best_labels = None
-        best_score = -1
-        best_params = {}
+        clusterer = hdbscan.HDBSCAN(
+            min_cluster_size=self.min_cluster_size,
+            min_samples=self.min_samples,
+            metric='precomputed',
+            cluster_selection_method='eom',
+            cluster_selection_epsilon=0.2
+        )
 
-        for min_cluster_size in [3, 4, 5]:
-            for min_samples in [2, 3]:
-                for cluster_selection_epsilon in [0.1, 0.2, 0.3]:
-                    try:
-                        clusterer = hdbscan.HDBSCAN(
-                            min_cluster_size=min_cluster_size,
-                            min_samples=min_samples,
-                            metric='precomputed',
-                            cluster_selection_method='eom',
-                            cluster_selection_epsilon=cluster_selection_epsilon
-                        )
+        labels = clusterer.fit_predict(distance_matrix)
 
-                        labels = clusterer.fit_predict(distance_matrix)
+        n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+        n_noise = list(labels).count(-1)
+        print(f"Clusters found: {n_clusters}, Noise points: {n_noise}")
 
-                        score = self.evaluate_clustering_quality(labels, similarity_matrix)
-
-                        if score > best_score:
-                            best_score = score
-                            best_labels = labels
-                            best_params = {
-                                'min_cluster_size': min_cluster_size,
-                                'min_samples': min_samples,
-                                'epsilon': cluster_selection_epsilon
-                            }
-                    except Exception as e:
-                        print(f"Error with params {min_cluster_size}, {min_samples}, {cluster_selection_epsilon}: {e}")
-                        continue
-
-        print(f"Best clustering params: {best_params}, score: {best_score:.3f}")
-        return best_labels
+        return labels
 
     def split_heterogeneous_cluster(self, cluster_info: Dict, similarity_matrix: np.ndarray,
                                     similarity_threshold: float = 0.5) -> List[Dict]:
