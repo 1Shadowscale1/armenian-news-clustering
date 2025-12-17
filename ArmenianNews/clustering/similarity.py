@@ -29,11 +29,6 @@ class SimilarityCalculator:
     @staticmethod
     def temporal_distance(date1, date2, max_days: float = 0.4) -> float:
         """Строгая временная метрика"""
-        if hasattr(date1, 'tzinfo') and date1.tzinfo is not None:
-            date1 = date1.replace(tzinfo=None)
-        if hasattr(date2, 'tzinfo') and date2.tzinfo is not None:
-            date2 = date2.replace(tzinfo=None)
-
         delta = abs((date1 - date2).days)
         if delta > max_days:
             return 1.0
