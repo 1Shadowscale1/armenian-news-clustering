@@ -52,7 +52,7 @@ class Pipeline:
         print("Computing embeddings...")
         embedding_model = EmbeddingModel()
         embeddings = embedding_model.get_embeddings_batch(input_texts)
-        dates = df['date_time'].dt.tz_localize(None).tolist()
+        dates = df['date_time'].tolist()
 
         print("Embeddings computed successfully!")
 

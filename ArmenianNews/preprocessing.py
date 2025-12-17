@@ -30,22 +30,30 @@ class TextPreprocessor:
 
             # Пробуем разные форматы дат
             formats_to_try = [
-                '%d %B %Y %H:%M',    # "10 January 2024 14:30"
-                '%d %B %Y',           # "10 January 2024"
+                '%d %B %Y %H:%M',  # "10 January 2024 14:30"
+                '%d %B %Y',  # "10 January 2024"
                 '%Y-%m-%d %H:%M:%S',  # "2024-01-10 14:30:00"
-                '%Y-%m-%d',           # "2024-01-10"
-                '%d/%m/%Y %H:%M',     # "10/01/2024 14:30"
-                '%d.%m.%Y %H:%M'      # "10.01.2024 14:30"
+                '%Y-%m-%d',  # "2024-01-10"
+                '%d/%m/%Y %H:%M',  # "10/01/2024 14:30"
+                '%d.%m.%Y %H:%M'  # "10.01.2024 14:30"
             ]
 
             for fmt in formats_to_try:
                 try:
-                    return pd.to_datetime(date_clean, format=fmt)
+                    dt = pd.to_datetime(date_clean, format=fmt)
+                    # Remove timezone if present, make it timezone-naive
+                    if dt.tz is not None:
+                        dt = dt.tz_localize(None)
+                    return dt
                 except:
                     continue
 
             # Если ни один формат не подошел, пробуем автоматическое определение
-            return pd.to_datetime(date_clean, errors='coerce')
+            dt = pd.to_datetime(date_clean, errors='coerce')
+            # Remove timezone if present
+            if dt is not pd.NaT and dt.tz is not None:
+                dt = dt.tz_localize(None)
+            return dt
 
         except Exception as e:
             print(f"Could not parse date: '{date_string}' - {e}")
