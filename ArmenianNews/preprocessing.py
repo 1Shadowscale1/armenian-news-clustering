@@ -55,12 +55,14 @@ class TextPreprocessor:
         # Конвертация дат
         df[date_column] = df[date_column].apply(self.convert_armenian_date)
 
-        # Удаление строк с пустыми датами
-        #df = df.dropna(subset=[date_column]).reset_index(drop=True)
+        # Заполнение пустых дат нулевой датой
+        # Используем фиксированную "нулевую" дату
+        zero_date = pd.Timestamp('1900-01-01')
+        df[date_column] = df[date_column].fillna(zero_date)
 
         # Создание объединенного текста
         df['full_text'] = df.apply(
-            lambda row: f"{row['title']}. {row['text']}"[:1000],  # Обрезка длинных текстов
+            lambda row: f"{row['title']}. {row['text']}"[:1000],
             axis=1
         )
 
