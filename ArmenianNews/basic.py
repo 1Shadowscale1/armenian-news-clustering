@@ -33,12 +33,10 @@ class Pipeline:
             out_csv= output_articles_csv
         )
 
-        file_paths = [output_articles_csv]
-
         # 1. Загрузка данных
         print("Loading data...")
         data_loader = ArmenianNewsDataLoader()
-        df = data_loader.load_data(file_paths)
+        df = data_loader.load_data(output_articles_csv)
 
         # 2. Препроцессинг
         print("Preprocessing data...")
