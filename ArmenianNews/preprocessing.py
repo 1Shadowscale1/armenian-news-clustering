@@ -57,7 +57,7 @@ class TextPreprocessor:
 
         # Заполнение пустых дат нулевой датой
         # Используем фиксированную "нулевую" дату
-        zero_date = pd.Timestamp('1900-01-01')
+        zero_date = pd.Timestamp('2100-01-01')
         df[date_column] = df[date_column].fillna(zero_date)
 
         # Создание объединенного текста

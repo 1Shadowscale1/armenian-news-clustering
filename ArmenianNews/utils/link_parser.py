@@ -34,9 +34,9 @@ class LinkParser:
                     text = ' '.join([p for p in paragraphs if p])
                 else:
                     text = news.get('content') or ''
-                return {'url': url, 'title': title, 'text': text, 'date': date}
+                return {'url': url, 'title': title, 'text': text, 'date_time': date}
             except Exception as e:
-                return {'url': url, 'error': f'api_error: {e}', 'title': '', 'text': '', 'date': ''}
+                return {'url': url, 'error': f'api_error: {e}', 'title': '', 'text': '', 'date_time': ''}
 
         if 'tert.am' in host:
             return _extract_api('tert', 'https://api.tert.am/api/v1/newsdetails/tert')
@@ -73,7 +73,7 @@ class LinkParser:
                 tnode = soup.find('time', attrs={'datetime': True}) or soup.select_one('time.cw-relative-date') or soup.find('time')
                 if tnode:
                     date = tnode.get('datetime') or tnode.get_text(strip=True)
-                return {'url': url, 'title': title, 'text': text, 'date': date}
+                return {'url': url, 'title': title, 'text': text, 'date_time': date}
             except Exception as e:
                 return {'url': url, 'error': f'hetq_html_error: {e}', 'title': '', 'text': ''}
 
@@ -112,11 +112,11 @@ class LinkParser:
                 if dnode:
                     date = dnode.get('datetime') or dnode.get_text(strip=True)
 
-                return {'url': url, 'title': title, 'text': text, 'date': date}
+                return {'url': url, 'title': title, 'text': text, 'date_time': date}
             except Exception as e:
-                return {'url': url, 'error': f'1in_html_error: {e}', 'title': '', 'text': '', 'date': ''}
+                return {'url': url, 'error': f'1in_html_error: {e}', 'title': '', 'text': '', 'date_time': ''}
 
-        return {'url': url, 'error': 'unsupported host', 'title': '', 'text': '', 'date': ''}
+        return {'url': url, 'error': 'unsupported host', 'title': '', 'text': '', 'date_time': ''}
 
     def load_urls_from_file(path: str) -> List[str]:
         with open(path, 'r', encoding='utf-8') as f:
