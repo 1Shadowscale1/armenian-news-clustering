@@ -63,11 +63,6 @@ class TextPreprocessor:
         # Конвертация дат
         df[date_column] = df[date_column].apply(self.convert_armenian_date)
 
-        # Заполнение пустых дат нулевой датой
-        # Используем фиксированную "нулевую" дату
-        zero_date = pd.Timestamp('2100-01-01')
-        df[date_column] = df[date_column].fillna(zero_date)
-
         # Создание объединенного текста
         df['full_text'] = df.apply(
             lambda row: f"{row['title']}. {row['text']}"[:1000],
