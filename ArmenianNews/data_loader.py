@@ -12,9 +12,11 @@ class ArmenianNewsDataLoader:
         dfs = []
 
         try:
-            df_temp = pd.read_csv(file_path).iloc[:, [1, 2, 3]]
+            df_temp = pd.read_csv(file_path)
+
             dfs.append(df_temp)
             print(f"Loaded {len(df_temp)} rows from {file_path}")
+            print(f"Columns loaded: {df_temp.columns.tolist()}")
         except Exception as e:
             warnings.warn(f"Error loading {file_path}: {e}")
 
