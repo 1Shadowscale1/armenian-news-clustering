@@ -26,11 +26,11 @@ class Pipeline:
     @staticmethod
     def pipeline(input_link_txt='input/urls.txt',
                  output_articles_csv='working/articles.csv',
-                 output_clusters_json='working/cluster_news_mapping.json'):
+                 output_clusters_txt='working/clusters_report.txt'):
 
         LinkParser.parse_articles(
-            input_file= input_link_txt,
-            out_csv= output_articles_csv
+            input_file=input_link_txt,
+            out_csv=output_articles_csv
         )
 
         # 1. Загрузка данных
@@ -98,39 +98,71 @@ class Pipeline:
         print("Post-processing clusters...")
         clusters = clustering.post_process_clusters(clusters, similarity_matrix)
 
-        # 9. Визуализация
-        print("\nCreating visualization...")
-        visualizer = NewsVisualization()
-
-        # Обновляем метки кластеров для визуализации
+        # Обновляем метки кластеров
         updated_cluster_labels = np.full(len(df), -1)
         for cluster_id, cluster_info in clusters.items():
             if cluster_id != -1:
                 for item in cluster_info['items']:
                     updated_cluster_labels[item['original_index']] = cluster_id
 
-        # Создаем визуализацию
-        fig = visualizer.create_cluster_visualization(
-            embeddings=embeddings.numpy(),
-            cluster_labels=updated_cluster_labels,
-            df=df
-        )
-        plt.show()
-
-        # 12. Статистика кластеризации
+        # Статистика кластеризации
         noise_count = np.sum(updated_cluster_labels == -1)
         valid_clusters = len([c for c in clusters.keys() if c != -1 and len(clusters[c]['items']) >= 2])
 
-        print(f"\nCLUSTERING SUMMARY:")
+        print(f"\n{'=' * 60}")
+        print("DUPLICATES SUMMARY:")
+        print(f"{'=' * 60}")
         print(f"   Total articles: {len(df)}")
-        print(f"   Valid clusters: {valid_clusters}")
+        print(f"   Valid duplicates groups: {valid_clusters}")
         print(f"   Noise articles: {noise_count}")
-        print(f"   Articles in clusters: {len(df) - noise_count}")
+        print(f"   Articles in groups: {len(df) - noise_count}")
+        print(f"{'=' * 60}\n")
 
+        # Вывод кластеров в консоль
+        print("\n" + "=" * 80)
+        print("DUPLICATES GROUPS:")
+        print("=" * 80 + "\n")
 
-        # 13. Создание отображения кластеров на новости
-        print("\nCreating cluster-news mapping")
-        cluster_news_mapping = analyzer.create_cluster_news_mapping(
-            clusters=clusters,
-            output_file=output_clusters_json
+        report_lines = ["=" * 80, "DUPLICATES GROUPS:", "=" * 80, ""]
+
+        # Сортируем кластеры по ID (исключая шум)
+        sorted_clusters = sorted(
+            [(cluster_id, cluster_info) for cluster_id, cluster_info in clusters.items() if cluster_id != -1],
+            key=lambda x: x[0]
         )
+
+        for cluster_id, cluster_info in sorted_clusters:
+            items = cluster_info['items']
+            if len(items) < 2:
+                continue
+
+            print(f"\nCluster {cluster_id}: ({len(items)} articles)")
+            print("-" * 40)
+
+            report_lines.append(f"\nCluster {cluster_id}: ({len(items)} articles)")
+            report_lines.append("-" * 40)
+
+            for i, item in enumerate(items, 1):
+                idx = item['original_index']
+                title = df.iloc[idx]['title'][:100] + "..." if len(df.iloc[idx]['title']) > 100 else df.iloc[idx][
+                    'title']
+                url = df.iloc[idx]['url']
+
+                print(f"  {i}. {title}")
+                print(f"     URL: {url}")
+
+                report_lines.append(f"  {i}. {title}")
+                report_lines.append(f"     URL: {url}")
+
+            print()
+            report_lines.append("")
+
+
+        # Сохранение отчета в файл
+        print(f"\nSaving report to {output_clusters_txt}")
+        with open(output_clusters_txt, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(report_lines))
+
+        print(f"Report saved successfully to {output_clusters_txt}")
+
+        return clusters, df, updated_cluster_labels
