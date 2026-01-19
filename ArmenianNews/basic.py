@@ -5,7 +5,7 @@
 import sys
 import os
 import numpy as np
-import matplotlib.pyplot as plt
+from datetime import datetime
 
 # Добавляем путь к проекту
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -19,7 +19,6 @@ from ArmenianNews import (
 from ArmenianNews.clustering.similarity import SimilarityCalculator
 from ArmenianNews.clustering.clustering import NewsClustering
 from ArmenianNews.clustering.analysis import ClusterAnalyzer
-from ArmenianNews.utils.visualization import NewsVisualization
 from ArmenianNews.utils.link_parser import LinkParser
 
 class Pipeline:
@@ -98,6 +97,14 @@ class Pipeline:
         print("Post-processing clusters...")
         clusters = clustering.post_process_clusters(clusters, similarity_matrix)
 
+        # Сортировка статей внутри каждого кластера по времени (от самой ранней к самой поздней)
+        for cluster_id in clusters:
+            if cluster_id != -1:
+                clusters[cluster_id]['items'] = sorted(
+                    clusters[cluster_id]['items'],
+                    key=lambda x: x.get('date', datetime.max) if x.get('date') else datetime.max
+                )
+
         # Обновляем метки кластеров
         updated_cluster_labels = np.full(len(df), -1)
         for cluster_id, cluster_info in clusters.items():
@@ -144,19 +151,33 @@ class Pipeline:
 
             for i, item in enumerate(items, 1):
                 idx = item['original_index']
-                title = df.iloc[idx]['title'][:100] + "..." if len(df.iloc[idx]['title']) > 100 else df.iloc[idx][
-                    'title']
+                title = df.iloc[idx]['title'][:100] + "..." if len(df.iloc[idx]['title']) > 100 else df.iloc[idx]['title']
                 url = df.iloc[idx]['url']
+                timestamp = df.iloc[idx]['date_time']
 
-                print(f"  {i}. {title}")
-                print(f"     URL: {url}")
+                # Форматируем время
+                time_str = timestamp.strftime("%Y-%m-%d %H:%M:%S") if hasattr(timestamp, 'strftime') else str(timestamp)
 
-                report_lines.append(f"  {i}. {title}")
-                report_lines.append(f"     URL: {url}")
+                # Помечаем самую раннюю статью в группе
+                if i == 1:  # Первая статья после сортировки по времени
+                    print(f"  {i}. {title}")
+                    print(f"     URL: {url}")
+                    print(f"     TIME: {time_str} ⭐ (EARLIEST)")
+
+                    report_lines.append(f"  {i}. {title}")
+                    report_lines.append(f"     URL: {url}")
+                    report_lines.append(f"     TIME: {time_str} ⭐ (EARLIEST)")
+                else:
+                    print(f"  {i}. {title}")
+                    print(f"     URL: {url}")
+                    print(f"     TIME: {time_str}")
+
+                    report_lines.append(f"  {i}. {title}")
+                    report_lines.append(f"     URL: {url}")
+                    report_lines.append(f"     TIME: {time_str}")
 
             print()
             report_lines.append("")
-
 
         # Сохранение отчета в файл
         print(f"\nSaving report to {output_clusters_txt}")
